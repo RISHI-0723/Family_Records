@@ -1,30 +1,38 @@
-# Family Records – Streamlit + SQLite
+# Family Records Manager 🧾
 
-A simple **Streamlit-based family database manager** built using **SQLite**.
-This project demonstrates clean database design, safe handling of sensitive-like
-data (dummy only), and separation of UI and database logic.
+A **Streamlit-based Family Records Management application** that uses a
+**multi-step form (wizard)** to collect data and stores it safely in a
+**SQLite database**.  
+This project demonstrates proper state management, database initialization,
+and version control using GitHub.
 
-## Tech Stack
-- Python
-- Streamlit
-- SQLite
+> ⚠️ All data used in this project is **dummy data for educational purposes only**.
 
-## Features
-- Initialize database with dummy family data
-- Display records in a clean tabular UI
-- Proper schema design with primary keys
-- No real personal data stored
+---
 
-## Project Structure
-- `app.py` – Streamlit UI
-- `db.py` – Database connection and initialization logic
-- `schema.sql` – Table structure
-- `sample_data.sql` – Dummy data
-- `requirements.txt` – Dependencies
+## 🚀 Features
 
-## How to Run Locally
-```bash
-python -m venv venv
-venv\Scripts\activate
-pip install -r requirements.txt
-python -m streamlit run app.py
+- Multi-step form (Wizard)
+  - Step 1: Basic Details (Name, Age)
+  - Step 2: Contact Details (Phone, Email)
+  - Step 3: Aadhaar (Last 4 digits only)
+  - Step 4: Review & Submit
+- Persistent form state using `st.session_state`
+- Safe SQLite database integration
+- Automatic database & table initialization
+- Clean tabular display of stored records
+- Proper Git & GitHub workflow
+
+---
+
+## 🛠 Tech Stack
+
+- **Python**
+- **Streamlit**
+- **SQLite**
+- **Git & GitHub**
+
+---
+
+## 📂 Project Structure
+
