@@ -1,12 +1,24 @@
 import sqlite3
 
+DB_NAME = "family.db"
+
 def get_connection():
-    return sqlite3.connect("family.db")
+    return sqlite3.connect(DB_NAME)
 
 def init_db():
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.executescript(open("schema.sql").read())
-    cursor.executescript(open("sample_data.sql").read())
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS family (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        age INTEGER,
+        phone TEXT,
+        email TEXT,
+        aadhaar_last4 TEXT
+    )
+    """)
+
     conn.commit()
     conn.close()
