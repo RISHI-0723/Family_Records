@@ -7,6 +7,9 @@ This project demonstrates proper state management, database initialization,
 and version control using GitHub.
 
 > ⚠️ All data used in this project is **dummy data for educational purposes only**.
+> ## 🚀 Live Demo
+## 🚀 Live Demo
+https://familyrecords-76pfzychwfkmn98s8xj3a7.streamlit.app/
 
 ---
 
