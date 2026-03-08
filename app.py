@@ -1,9 +1,39 @@
-from db import get_connection, init_db
+import streamlit as st
+import pandas as pd
+import sqlite3
 
-# 🔑 Ensure DB + table exist at app startup
+DB_NAME = "family.db"
+
+# -----------------------------
+# DATABASE FUNCTIONS
+# -----------------------------
+def get_connection():
+    return sqlite3.connect(DB_NAME)
+
+def init_db():
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS family (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        age INTEGER,
+        phone TEXT,
+        email TEXT,
+        aadhaar_last4 TEXT
+    )
+    """)
+
+    conn.commit()
+    conn.close()
+
+# ensure DB exists
 init_db()
 
-import streamlit as st
+# -----------------------------
+# SESSION STATE
+# -----------------------------
 if "step" not in st.session_state:
     st.session_state.step = 1
 
@@ -22,13 +52,16 @@ if "email" not in st.session_state:
 if "aadhaar_last4" not in st.session_state:
     st.session_state.aadhaar_last4 = ""
 
+# -----------------------------
+# APP TITLE
+# -----------------------------
+st.title("Family DB Manager")
 
-st.title("Family Records – Multi-Form Wizard")
-
-# ---------------------------
-# STEP 1: Basic Details
-# ---------------------------
+# -----------------------------
+# STEP 1
+# -----------------------------
 if st.session_state.step == 1:
+
     st.header("Step 1: Basic Details")
 
     st.session_state.name = st.text_input(
@@ -47,10 +80,11 @@ if st.session_state.step == 1:
         st.session_state.step = 2
         st.rerun()
 
-# ---------------------------
-# STEP 2: Contact Details
-# ---------------------------
+# -----------------------------
+# STEP 2
+# -----------------------------
 elif st.session_state.step == 2:
+
     st.header("Step 2: Contact Details")
 
     st.session_state.phone = st.text_input(
@@ -74,10 +108,12 @@ elif st.session_state.step == 2:
         if st.button("Next"):
             st.session_state.step = 3
             st.rerun()
-# ---------------------------
-# STEP 3: Aadhaar Details
-# ---------------------------
+
+# -----------------------------
+# STEP 3
+# -----------------------------
 elif st.session_state.step == 3:
+
     st.header("Step 3: Aadhaar Details")
 
     st.session_state.aadhaar_last4 = st.text_input(
@@ -97,13 +133,15 @@ elif st.session_state.step == 3:
         if st.button("Next"):
             st.session_state.step = 4
             st.rerun()
-# ---------------------------
-# STEP 4: Review & Submit
-# ---------------------------
-elif st.session_state.step == 4:
-    st.header("Step 4: Review & Submit")
 
-    st.write("Please review the details before submitting:")
+# -----------------------------
+# STEP 4
+# -----------------------------
+elif st.session_state.step == 4:
+
+    st.header("Review & Submit")
+
+    st.write("Please review your data")
 
     st.markdown(f"""
     **Name:** {st.session_state.name}  
@@ -122,6 +160,7 @@ elif st.session_state.step == 4:
 
     with col2:
         if st.button("Submit"):
+
             conn = get_connection()
             cursor = conn.cursor()
 
@@ -142,9 +181,8 @@ elif st.session_state.step == 4:
             conn.commit()
             conn.close()
 
-            st.success("Family record added successfully!")
+            st.success("Record saved!")
 
-            # Reset wizard
             st.session_state.step = 1
             st.session_state.name = ""
             st.session_state.age = None
@@ -154,30 +192,37 @@ elif st.session_state.step == 4:
 
             st.rerun()
 
-import pandas as pd
-from db import init_db, get_connection
-
-st.title("Family DB Manager (Dummy Data)")
-
-if st.button("Initialize Database"):
-    init_db()
-    st.success("Database created with dummy data")
-    st.rerun()
+# -----------------------------
+# DISPLAY DATABASE RECORDS
+# -----------------------------
+st.divider()
+st.subheader("Family Records")
 
 conn = get_connection()
 
-query = """
-SELECT 
-    name AS Name,
-    age AS Age,
-    phone AS Phone,
-    email AS Email,
-    aadhaar_last4 AS Aadhaar_Last_4
-FROM family
-"""
+df = pd.read_sql_query(
+    "SELECT id, name, age, phone, email, aadhaar_last4 FROM family",
+    conn
+)
 
-df = pd.read_sql_query(query, conn)
+for index, row in df.iterrows():
+
+    col1, col2, col3, col4, col5, col6, col7 = st.columns(7)
+
+    col1.write(row["id"])
+    col2.write(row["name"])
+    col3.write(row["age"])
+    col4.write(row["phone"])
+    col5.write(row["email"])
+    col6.write(row["aadhaar_last4"])
+
+    if col7.button("Delete", key=row["id"]):
+
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM family WHERE id=?", (row["id"],))
+        conn.commit()
+
+        st.warning("Record deleted")
+        st.rerun()
+
 conn.close()
-
-st.subheader("Family Records")
-st.table(df)
